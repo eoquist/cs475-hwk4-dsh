@@ -8,4 +8,4 @@
 #define MAXBUF 256
 
 // TODO: Your function prototypes below
-void execution(char *path);
+void fullPathGiven(char *path)
