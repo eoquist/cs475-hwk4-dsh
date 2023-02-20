@@ -17,3 +17,15 @@
 #include <string.h>
 
 // TODO: Your function definitions (declarations in dsh.h)
+void execution(char *path)
+{
+    if (access(path, F_OK | X_OK) == 0)
+    {
+        // File exists and is executable! Can run!
+    }
+    else
+    {
+        // No good! File doesn't exist or is not executable!
+        // Alert user and re-prompt
+    }
+}

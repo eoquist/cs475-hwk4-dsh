@@ -18,6 +18,7 @@ int main(int argc, char **argv)
 	char cmdline[MAXBUF]; // stores user input from commmand line
 	cmdline[0] = '\0';
 	char *line = (char *)malloc(MAXBUF);
+	int boo = 1;
 
 	strcpy(line, "  abc def  ");
 	strcpy(line, trim(line));
@@ -26,9 +27,9 @@ int main(int argc, char **argv)
 	char endCondition = '\n';
 
 	// As soon as dsh starts, it should repeatedly provide the user with a command - line prompt : 'dsh> ' while ((cmdline[0] != endCondition))
+	while (boo == 1)
 	{
 		printf("dsh> ");
-		// fgets(cmdline, MAXBUF, stdin);
 
 		// handles stdin \n
 		if (fgets(cmdline, MAXBUF, stdin) != NULL)
@@ -44,8 +45,8 @@ int main(int argc, char **argv)
 		{
 			printf("\ndsh> ");
 		}
+		boo = 0;
 	}
-
 	return 0;
 }
 
