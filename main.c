@@ -44,7 +44,6 @@ int main(int argc, char **argv)
 		{
 			printf("\ndsh> ");
 		}
-		s
 	}
 
 	return 0;
