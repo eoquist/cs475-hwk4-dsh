@@ -18,9 +18,24 @@
 
 // TODO: Your function definitions (declarations in dsh.h)
 
-// Mode 1 (full path given): Say the user types in the full path to an executable.
-// You know they typed a full path if their input starts begins with a '/' character!
-// First, check to see if the given path even exists.
+// GET LINE OF INPUT ...... does token start with '/' ?
+//		Y -- does file exist?
+//			Y -- fork() and exec()
+//				IF COMMAND ENDS WITH & --> run in bg --> start at new input
+//				ELSE WAIT --> start at new input
+//			N -- command not found error
+//
+//		N -- is the command built in?
+//			Y -- run internal function
+//			N -- split PATH env var by :  ... more paths?
+//				Y -- concat next path with command
+//					if path exists, fork() exec()
+//						IF COMMAND ENDS WITH & --> run in bg --> start at new input
+//						ELSE WAIT
+//					else check for more paths
+//				N -- command not found error
+
+// Mode 1 (full path given):
 void fullPathGiven(char *path)
 {
     if (access(path, F_OK | X_OK) == 0)
@@ -51,6 +66,7 @@ void fullPathGiven(char *path)
         printf("\033[31mError: %s not found!\033[0m\n", path); // love Lucas
 
         // Alert user and re-prompt
+        main();
     }
 }
 
