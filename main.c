@@ -15,71 +15,69 @@
 
 int main(int argc, char **argv)
 {
+	char **cmdArr = malloc(MAXARGS * sizeof(char *));
+	// :)
 	char *cmdline = (char *)malloc(MAXBUF * sizeof(char)); // stores user input from commmand line
+	char tmp[MAXBUF];
 	const char delim[2] = " ";
 	char *token;
-	int numTokens = 0;
 
 	// As soon as dsh starts, repeatedly provide the user with prompt : 'dsh> '
 	printf("dsh> ");
-
 	while (fgets(cmdline, MAXBUF, stdin) != NULL)
 	{
 		cmdline[strcspn(cmdline, "\n")] = '\0'; // honestly not sure if this does anything
 
+		// do you like my "built-in commands"
 		if (strcmp(cmdline, "exit") == 0)
 		{
-			// boo = 0;
 			printf("Program exited.");
 			free(cmdline);
 			exit(0); // success exit
 		}
+		else if (strcmp(cmdline, "pwd") == 0)
+		{
+			// make sure its printing the right working dir
+			printf("%s\n", getcwd(tmp, sizeof(tmp)));
+		}
 		else
 		{
 			// will double print if stdin more than max buff
-			// the sol has stack smashing detected *** ?????
-
+			// dshSol has stack smashing detected ***
 			printf("dsh> ");
 
-			// GET LINE OF INPUT ...... does token start with '/' ?
-			//		Y -- does file exist?
-			//			Y -- fork() and exec()
-			//				IF COMMAND ENDS WITH & --> run in bg --> start at new input
-			//				ELSE WAIT --> start at new input
-			//			N -- command not found error
-			//
-			//		N -- is the command built in?
-			//			Y -- run internal function
-			//			N -- split PATH env var by :  ... more paths?
-			//				Y -- concat next path with command
-			//					if path exists, fork() exec()
-			//						IF COMMAND ENDS WITH & --> run in bg --> start at new input
-			//						ELSE WAIT
-			//					else check for more paths
-			//				N -- command not found error
-
-			// strtok vs strtok_r
-			token = strtok(cmdline, delim);
-			numTokens++;
+			int i = 0;
+			token = strtok(cmdline, delim); // strtok vs strtok_r
 			while (token != NULL)
 			{
 				char firstElem = token[0];
-				if (strcmp(firstElem, '/') == 0)
+				cmdArr[i] = malloc((MAXBUF) * sizeof(char));
+
+				if (strcmp(token, "cd") == 0)
+				{
+					// if next token doesnt exist then cd to user's home directory
+					//		chdir() and getenv()
+
+					// otherwise get next token [path] and change cwd to that OPTIONALLY given path
+				}
+				if (strcmp(&firstElem, "/") == 0)
 				{
 					// mode 1 needs to be done
+
+					// get all remaining tokens
+					strcpy(cmdArr[i], token); // make sure this is not the "/" token
+					i++;
+
 					// make sure that you free(cmdline) before mode 1 is run bc it can call main again
 				}
-				printf(".%s.", token);		 // testing purposes
 				token = strtok(NULL, delim); // NULL -> continue tokenizing
 			}
-			// :)
-			char **cmdArr;
-			cmdArr = malloc(numTokens * sizeof(char *));
-			for (int i = 0; i < numTokens; i++)
+
+			for (int j = 0; j < MAXARGS; j++)
 			{
-				cmdArr[i] = malloc((maximum_size_of_token + 1) * sizeof(char));
-				strcpy(cmdArr[i], the_token_itself[i]);
+				free(cmdArr[j]);
 			}
+			free(cmdArr);
 			exit(1); // failure exit
 		}
 	}
