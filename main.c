@@ -15,7 +15,7 @@
 
 int main(int argc, char **argv)
 {
-	char **cmdArr = malloc(MAXARGS * sizeof(char *));
+	// char **cmdArr = malloc(MAXARGS * sizeof(char *));
 	// :)
 	char *cmdline = (char *)malloc(MAXBUF * sizeof(char)); // stores user input from commmand line
 	char tmp[MAXBUF];
@@ -26,32 +26,31 @@ int main(int argc, char **argv)
 	printf("dsh> ");
 	while (fgets(cmdline, MAXBUF, stdin) != NULL)
 	{
-		cmdline[strcspn(cmdline, "\n")] = '\0'; // honestly not sure if this does anything
+		// cmdline[strcspn(cmdline, "\n")] = '\0'; // honestly not sure if this does anything
 
-		// do you like my "built-in commands"
+		// sexy "built-in commands"
 		if (strcmp(cmdline, "exit") == 0)
 		{
-			printf("Program exited.");
 			free(cmdline);
 			exit(0); // success exit
 		}
 		else if (strcmp(cmdline, "pwd") == 0)
 		{
-			// make sure its printing the right working dir
+			// make sure its printing the right working dir AFTER running other methods
 			printf("%s\n", getcwd(tmp, sizeof(tmp)));
+			continue;
+			// this looks weird af in valgrind compared to dshSol
 		}
 		else
 		{
-			// will double print if stdin more than max buff
-			// dshSol has stack smashing detected ***
-			printf("dsh> ");
+			// dshSol has stack smashing detected *** ---> mine doesn't
 
-			int i = 0;
+			// int i = 0;
 			token = strtok(cmdline, delim); // strtok vs strtok_r
 			while (token != NULL)
 			{
 				char firstElem = token[0];
-				cmdArr[i] = malloc((MAXBUF) * sizeof(char));
+				// cmdArr[i] = malloc((MAXBUF) * sizeof(char));
 
 				if (strcmp(token, "cd") == 0)
 				{
@@ -65,20 +64,22 @@ int main(int argc, char **argv)
 					// mode 1 needs to be done
 
 					// get all remaining tokens
-					strcpy(cmdArr[i], token); // make sure this is not the "/" token
-					i++;
+					// strcpy(cmdArr[i], token); // make sure this is not the "/" token
+					// i++;
 
 					// make sure that you free(cmdline) before mode 1 is run bc it can call main again
 				}
 				token = strtok(NULL, delim); // NULL -> continue tokenizing
 			}
+			printf("dsh> ");
 
-			for (int j = 0; j < MAXARGS; j++)
-			{
-				free(cmdArr[j]);
-			}
-			free(cmdArr);
-			exit(1); // failure exit
+			// for (int j = 0; j < MAXARGS; j++)
+			// {
+			// 	free(cmdArr[j]);
+			// }
+			// free(cmdArr);
+			free(cmdline);
+			// exit(1); // failure exit
 		}
 	}
 	free(cmdline);

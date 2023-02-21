@@ -67,6 +67,7 @@ void fullPathConstruction()
     // That is, the location of where your shell thinks you’re in. Look into using getcwd(), defined in unistd.h.
     // Concatenate the user’s input to the value of the current working directory, and see if it exists.
     // If not, then move on to the next step.
+
     // For instance, if I typed ls2 and my current working directory is /home/dchiu, then the first place my
     // program would be /home/dchiu/ls2. Of course, this file may or may not exist… read on!
 
@@ -82,6 +83,10 @@ void fullPathConstruction()
 
     // Again, if I typed ls2, then the first location to try is /opt/local/bin/ls2, the second place to try is
     // /opt/local/sbin/ls2, and so on. As soon as you detect that a full path to the executable exists, then try
-    // to run it and be done! Once you’ve tried all the paths in the environment variable, then you can output
-    // a Command not found error message and reprompt for the next command.
+    // to run it and be done!
+
+    // Once you’ve tried all the paths in the environment variable, then you can output a Command not found
+    // error message
+
+    // Returns to main and reprompts for the next command
 }
