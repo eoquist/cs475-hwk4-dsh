@@ -15,53 +15,42 @@
 
 int main(int argc, char **argv)
 {
-	char cmdline[MAXBUF]; // stores user input from commmand line
-	cmdline[0] = '\0';
-	char *line = (char *)malloc(MAXBUF);
-	int boo = 1;
-
-	strcpy(line, "  abc def  ");
-	strcpy(line, trim(line));
-	free(line);
-
-	char endCondition = '\n';
+	char *cmdline = (char *)malloc(MAXBUF * sizeof(char)); // stores user input from commmand line
+	// int boo = 1;
+	// const char delim[2] = " ";
+	// char *token;
 
 	// As soon as dsh starts, it should repeatedly provide the user with a command - line prompt : 'dsh> ' while ((cmdline[0] != endCondition))
-	while (boo == 1)
+	// while (boo == 1)
+	// {
+	printf("dsh> ");
+
+	while (fgets(cmdline, MAXBUF, stdin) != NULL)
 	{
-		printf("dsh> ");
+		// cmdline[strcspn(cmdline, "\n")] = '\0';
+		// printf("yay");
 
-		// handles stdin \n
-		if (fgets(cmdline, MAXBUF, stdin) != NULL)
-		{
-			line[strcspn(line, "\n")] = '\0';
-		}
+		// cmdline = strtok(cmdline, delim);
+		// while (token != NULL)
+		// {
+		// 	printf(".%s.", token);
+		// 	token = strtok(NULL, delim); // NULL -> continue tokenizing
+		// }
 
-		if (cmdline[0] != endCondition)
+		if (strcmp(cmdline, "exit") == 0)
 		{
-			// Once you have the input line, you should trim it (that is, remove all preceding and trailing white space).
+			// boo = 0;
+			exit(0); // success exit
+			printf("Program exited.");
 		}
 		else
 		{
-			printf("\ndsh> ");
+			// will double print if stdin more than max buff
+			// use stack smashing detected ***
+			printf("dsh> ");
 		}
-		boo = 0;
 	}
+	free(cmdline);
 	return 0;
-}
-
-// handle leading and trailing whitespace as well as \n
-// https://stackoverflow.com/questions/56218002/how-to-remove-leading-trailing-white-spaces-in-c-without-memory-leak
-char *trim(char *str)
-{
-	char *end;
-	while (isspace((unsigned char)*str))
-		str++;
-	end = str + strlen(str) - 1;
-	while (end > str && isspace((unsigned char)*end))
-	{
-		end--;
-		*end = '\0';
-	}
-	return (str);
+	// }
 }
