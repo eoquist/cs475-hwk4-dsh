@@ -18,24 +18,6 @@
 
 // TODO: Your function definitions (declarations in dsh.h)
 
-// GET LINE OF INPUT ...... does token start with '/' ?
-//		Y -- does file exist?
-//			Y -- fork() and exec()
-//				IF COMMAND ENDS WITH & --> run in bg --> start at new input
-//				ELSE WAIT --> start at new input
-//			N -- command not found error
-//
-//		N -- is the command built in?
-//			Y -- run internal function
-//			N -- split PATH env var by :  ... more paths?
-//				Y -- concat next path with command
-//					if path exists, fork() exec()
-//						IF COMMAND ENDS WITH & --> run in bg --> start at new input
-//						ELSE WAIT
-//					else check for more paths
-//				N -- command not found error
-
-// Mode 1 (full path given):
 void fullPathGiven(char *path, char **argv)
 {
     if (access(path, F_OK | X_OK) == 0)
@@ -89,4 +71,38 @@ void fullPathConstruction()
     // error message
 
     // Returns to main and reprompts for the next command
+}
+
+char **split(char *str, char *delim)
+{
+    char *token;
+    int numToken = 0;
+    for (int i = 0; i < strlen(str); i++)
+    {
+        if (strcmp(str, delim) == 0)
+        {
+            numToken++;
+        }
+    }
+
+    char **cmdArr = malloc((numToken + 1) * sizeof(char *));
+
+    // malloc
+    for (int i = 0; i < numToken; i++)
+    {
+        cmdArr[i] = (char *)malloc(numToken * sizeof(char));
+    }
+
+    // modifies cmdline
+    int i = 0;
+    token = strtok(str, delim); // strtok vs strtok_r
+    while (token != NULL)
+    {
+        token = strtok(NULL, delim); // NULL -> continue tokenizing
+        strcpy(cmdArr[i], token);
+        numToken++;
+        i++;
+    }
+    strcpy(cmdArr[i], NULL);
+    return cmdArr;
 }

@@ -15,12 +15,9 @@
 
 int main(int argc, char **argv)
 {
-	// char **cmdArr = malloc(MAXARGS * sizeof(char *));
-	// :)
 	char *cmdline = (char *)malloc(MAXBUF * sizeof(char)); // stores user input from commmand line
-	char tmp[MAXBUF];
-	const char delim[2] = " ";
-	char *token;
+	// char tmp[MAXBUF];
+	char *delim = " ";
 
 	// As soon as dsh starts, repeatedly provide the user with prompt : 'dsh> '
 	printf("dsh> ");
@@ -32,55 +29,30 @@ int main(int argc, char **argv)
 		if (strcmp(cmdline, "exit") == 0)
 		{
 			free(cmdline);
-			exit(0); // success exit
+			exit(0); // 1 = failure
 		}
 		else if (strcmp(cmdline, "pwd") == 0)
 		{
 			// make sure its printing the right working dir AFTER running other methods
-			printf("%s\n", getcwd(tmp, sizeof(tmp)));
+			printf("%s\n", getcwd(cmdline, sizeof(cmdline)));
 			continue;
 			// this looks weird af in valgrind compared to dshSol
 		}
-		else
+
+		char **cmdArr = split(cmdline, delim);
+
+		// print out all the tokens
+		int i = 0;
+		while (cmdArr[i] != NULL)
 		{
-			// dshSol has stack smashing detected *** ---> mine doesn't
-
-			// int i = 0;
-			token = strtok(cmdline, delim); // strtok vs strtok_r
-			while (token != NULL)
-			{
-				char firstElem = token[0];
-				// cmdArr[i] = malloc((MAXBUF) * sizeof(char));
-
-				if (strcmp(token, "cd") == 0)
-				{
-					// if next token doesnt exist then cd to user's home directory
-					//		chdir() and getenv()
-
-					// otherwise get next token [path] and change cwd to that OPTIONALLY given path
-				}
-				if (strcmp(&firstElem, "/") == 0)
-				{
-					// mode 1 needs to be done
-
-					// get all remaining tokens
-					// strcpy(cmdArr[i], token); // make sure this is not the "/" token
-					// i++;
-
-					// make sure that you free(cmdline) before mode 1 is run bc it can call main again
-				}
-				token = strtok(NULL, delim); // NULL -> continue tokenizing
-			}
-			printf("dsh> ");
-
-			// for (int j = 0; j < MAXARGS; j++)
-			// {
-			// 	free(cmdArr[j]);
-			// }
-			// free(cmdArr);
-			free(cmdline);
-			// exit(1); // failure exit
+			printf("%s\n", cmdArr[i]);
+			// check "/" and "cd" and redo "pwd" and "exit"
+			i++;
 		}
+
+		printf("dsh> ");
+
+		free(cmdline);
 	}
 	free(cmdline);
 	return 0;

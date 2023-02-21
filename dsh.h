@@ -11,3 +11,5 @@
 // TODO: Your function prototypes below
 
 void fullPathGiven(char *path, char **argv);
+
+char **split(char *str, char *delim);
