@@ -66,15 +66,16 @@ void fullPathGiven(int argc, char **argv, char *path)
 */
 void fullPathConstruction(int argc, char **argv, char *path)
 {
-    // char cwd[MAXBUF];
-    char* cwd = malloc(MAXBUF *sizeof(int));
+    char cwd[MAXBUF];
+    // char* cwd = malloc(MAXBUF *sizeof(int));
     getcwd(cwd, sizeof(cwd));
 
     // char tokPath[MAXBUF];
     char* tokPath = malloc(MAXBUF *sizeof(int));
 
+    tokPath = strcat(cwd,"/"); 
     tokPath = strcat(cwd,argv[0]); 
-    printf("post-cat path: %s\n",cwd);
+    printf("first cat path: %s\n",tokPath);
 
     if (access(tokPath, F_OK | X_OK) == 0) {
         execv(tokPath,argv);
@@ -88,29 +89,34 @@ void fullPathConstruction(int argc, char **argv, char *path)
         char** pathArr = split(envPATH, delim, numTok); 
 
         for(int i = 1; i < *numTok; i++){
-            tokPath = strcat(cwd,argv[i]); 
-            printf("post-cat path: %s\n",cwd);
+            getcwd(cwd, sizeof(cwd));
+            printf("cwd .%s.\n", cwd);
+            printf("param #%d: .%s.\n",i,pathArr[i]);
+            tokPath = strcat(cwd,pathArr[i]);
+            printf("innerloop path: %s\n",tokPath); 
 
             if (access(tokPath, F_OK | X_OK) == 0) {
+                printf("file access OK\n");
                 execv(tokPath,argv);
-            }
+            } 
             if(i == *numTok -1){
                 // only after you’ve tried all the paths in the environment variable
                 printf("\033[31mError: Command %s not found!\033[0m\n", argv[0]); // lucas is so cool
             }
         }
 
-        // freeing stuff
+        // freeing stuff from else
 		for (int i = 0; i < *numTok; i++){free(pathArr[i]);pathArr[i]=NULL;}
-        free(cwd);
-        free(tokPath);
 		free(numTok);
 		free(pathArr);
-        cwd = NULL;
-        tokPath = NULL;
+        
 		numTok = NULL;
 		pathArr = NULL;
     }
+    // free(cwd);
+    free(tokPath);
+    // cwd = NULL;
+    tokPath = NULL;
 }
 
 /** Methods splits string into separate tokens delimited by whitespace and */

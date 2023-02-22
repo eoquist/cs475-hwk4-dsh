@@ -59,14 +59,11 @@ int main(int argc, char **argv)
 			else{
 				chdir(path); // !!! errors if path not found?
 			}
-			printf("path %s\n",path);
 			printf("dsh> ");
 			continue;
 		}
 		else if(strcmp(cmdline, "pwd") == 0)
 		{ 
-			// !!!
-			// make sure its printing the right working dir AFTER running other methods
 			char tmp[MAXBUF];
 			printf("%s\n", getcwd(tmp, sizeof(tmp)));
 			printf("dsh> ");
@@ -74,7 +71,6 @@ int main(int argc, char **argv)
 		}
 		else
 		{
-			printf("funni commands to come");
 			fullPathConstruction(*numTok, cmdArr, cmdline);
 			printf("dsh> ");
 			continue;
