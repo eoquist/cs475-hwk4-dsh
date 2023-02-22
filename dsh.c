@@ -19,24 +19,27 @@
 
 // TODO: Your function definitions (declarations in dsh.h)
 
-void fullPathGiven(char *path, char **argv)
+void fullPathGiven(int argc, char **argv, char *path)
 {
+    // File exists and is executable! Can run!
     if (access(path, F_OK | X_OK) == 0)
     {
-        // File exists and is executable! Can run!
-
-        // 1) Run in foreground: Execute the path using fork() and execv() as you learned in class.
-        // The call to execv() requires the full path to the executable, which the user already gave you.
-
-        // 2) Run in background: If the last character in a valid command is an & symbol, the command is to be
-        // run in the background. This means that you’ll see dsh> being re-displayed immediately by the parent
-        // (dsh) process. If the child process prints to the screen, it’ll interleave its outputs into the terminal.
+        char lastChar; // sample last valid char
+        if (strcmp(lastChar, "&") == 0)
+        {
+            // 2) Run in background: If the last character in a valid command is an & symbol, the command is to be
+            // run in the background. This means that you’ll see dsh> being re-displayed immediately by the parent
+            // (dsh) process. If the child process prints to the screen, it’ll interleave its outputs into the terminal.
+        } else
+        {
+            // 1) Run in foreground: Execute the path using fork() and execv() as you learned in class.
+            // The call to execv() requires the full path to the executable, which the user already gave you.
+        }
     }
     else
     {
         // https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
         printf("\033[31mError: %s not found!\033[0m\n", path); // i love lucas
-        // returns to main
     }
 }
 
@@ -74,17 +77,15 @@ void fullPathConstruction()
     // Returns to main and reprompts for the next command
 }
 
-char **split(char *str, char *delim, int* numTok)
+char **split(char *str, char *delim, int *numTok)
 {
     char *token;
-    numTok = 0;
-    printf("token");
     int numToken = 0;
-    char* start = str;
+    char *start = str;
     char *end;
 
     // trim leading and trailing
-    while (isspace((unsigned char)*str)){str++;} 
+    while (isspace((unsigned char)*str)){str++;}
     end = str + strlen(str) - 1;
     while (end > str && isspace((unsigned char)*end)){end--;}
     *(end + 1) = '\0';
@@ -92,21 +93,18 @@ char **split(char *str, char *delim, int* numTok)
     // counting is for cool people
     while (*start)
     {
-        if (*start == *delim)
-        {
-            numToken++;
-        }
+        if (*start == *delim){numToken++;}
         start++;
     }
-    // offset due to counting delim and include a token for NULL
-    numToken += 2;
-    printf("numTok: %d\n", numToken);
+    // offset due to counting delim
+    numToken++;
+    printf("numTok: %d\n", numToken); // !!!
 
-    // malloc
-    char **cmdArr = malloc((numToken) * sizeof(char *));
+    // malloc -- numToken offset to add NULL
+    char **cmdArr = malloc((numToken + 1) * sizeof(char *));
     for (int i = 0; i < numToken; i++)
     {
-        cmdArr[i] = (char *)malloc(numToken * sizeof(char));
+        cmdArr[i] = (char *)malloc(MAXBUF * sizeof(char));
     }
 
     // !!!!! how to handle if there's only one token
@@ -116,14 +114,13 @@ char **split(char *str, char *delim, int* numTok)
     token = strtok(str, delim); // strtok vs strtok_r ???
     while (token != NULL)
     {
-        // printf("ptr .%s.\ttoken .%s.", cmdArr[i],token);
         strcpy(cmdArr[i], token);
-        // printf("token .%s.\n", token);
-
         token = strtok(NULL, delim); // NULL -> continue tokenizing
-        numToken++;
         i++;
     }
-    cmdArr[i] = NULL; 
+    cmdArr[i] = NULL;
+
+    // return pointers
+    *numTok = numToken;
     return cmdArr;
 }

@@ -10,6 +10,6 @@
 
 // TODO: Your function prototypes below
 
-void fullPathGiven(char *path, char **argv);
+void fullPathGiven(int argc, char **argv, char *path);
 
 char **split(char *str, char *delim, int* numTok);

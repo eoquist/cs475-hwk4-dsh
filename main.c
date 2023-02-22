@@ -1,8 +1,9 @@
 /*
  * main.c
  *
- *  Created on: Mar 17 2017
- *      Author: david
+ * I am the over-commenter
+ *  Created on: Feb 20 2023
+ *      Author: eoquist
  */
 
 #include <stdio.h>
@@ -17,42 +18,41 @@ int main(int argc, char **argv)
 	char *cmdline = (char *)malloc(MAXBUF * sizeof(char)); // stores user input from commmand line
 	char *delim = " ";
 
-	// As soon as dsh starts, repeatedly provide the user with prompt : 'dsh> '
+	// user input time bb
 	printf("dsh> ");
 	while (fgets(cmdline, MAXBUF, stdin) != NULL)
 	{
-		cmdline[strcspn(cmdline, "\n")] = '\0'; // handles stdin \n
-		printf("this is your input: .%s.\n", cmdline);
+		cmdline[strcspn(cmdline, "\n")] = '\0'; // byebye \n
 
-		// sexy "built-in commands" that may get moved elsewhere
+		// handles empty input
+		if (strlen(cmdline) == 0)
+		{
+			printf("dsh> ");
+			continue;
+		}
+
+		// sexy "built-in command"
 		if (strcmp(cmdline, "exit") == 0)
 		{
 			free(cmdline);
 			exit(0); // 1 = failure
 		}
 
-		int* numTok = (int*)malloc(sizeof(int));
-		char **cmdArr = split(cmdline, delim,numTok); // byte lost here when exiting after cmdarr stuff malloc'd
-		
+		int *numTok = (int *)malloc(sizeof(int));
+		char **cmdArr = split(cmdline, delim, numTok); 
 
-		// print out all the tokens
-		int i = 0;
-		while (cmdArr[i] != NULL)
-		{
-			printf("token #%d: %s\n", i, cmdArr[i]);
-			// check "/" and "cd" and redo "pwd" and "exit"
-			i++;
-		}
+		// check "/" and "cd" and redo "pwd"
+
+
 
 		printf("dsh> ");
 
-		// free
-		for (i = 0; i < *numTok; i++)
-		{
-			free(cmdArr[i]);
-		}
+		// freeing stuff
+		for (int i = 0; i < *numTok; i++){free(cmdArr[i]);}
+		free(numTok);
 		free(cmdArr);
 	}
 	free(cmdline);
+	printf("funni\n");
 	return 0;
 }
