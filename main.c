@@ -31,28 +31,68 @@ int main(int argc, char **argv)
 			continue;
 		}
 
-		// sexy "built-in command"
+		// sexy "built-in command" 
 		if (strcmp(cmdline, "exit") == 0)
 		{
 			free(cmdline);
-			exit(0); // 1 = failure
+			cmdline = NULL;
+			exit(0);
 		}
 
-		int *numTok = (int *)malloc(sizeof(int));
+
+		// Malloc
+		int *numTok = malloc(sizeof(int));
 		char **cmdArr = split(cmdline, delim, numTok); 
 
-		// check "/" and "cd" and redo "pwd"
-
-
+		// sexy "built-in command(s)" plural 
+		if(cmdline[0] == '/'){
+			fullPathGiven(*numTok,cmdArr,cmdline);
+			printf("dsh> ");
+			continue;
+		} 
+		else if (strcmp(cmdline, "cd") == 0)
+		{
+			char* path = cmdArr[1];
+			if(path == NULL){
+				chdir(getenv("HOME"));
+			} 
+			else{
+				chdir(path); // !!! errors if path not found?
+			}
+			printf("path %s\n",path);
+			printf("dsh> ");
+			continue;
+		}
+		else if(strcmp(cmdline, "pwd") == 0)
+		{ 
+			// !!!
+			// make sure its printing the right working dir AFTER running other methods
+			char tmp[MAXBUF];
+			printf("%s\n", getcwd(tmp, sizeof(tmp)));
+			printf("dsh> ");
+			continue;
+		}
+		else
+		{
+			printf("funni commands to come");
+			fullPathConstruction(*numTok, cmdArr, cmdline);
+			printf("dsh> ");
+			continue;
+		}
 
 		printf("dsh> ");
 
 		// freeing stuff
-		for (int i = 0; i < *numTok; i++){free(cmdArr[i]);}
+		for (int i = 0; i < *numTok; i++){free(cmdArr[i]);cmdArr[i]=NULL;}
 		free(numTok);
 		free(cmdArr);
+		numTok = NULL;
+		cmdArr = NULL;
 	}
 	free(cmdline);
+	cmdline = NULL;
 	printf("funni\n");
+	// run badapple here
+	// add the binary main to this folder and make sure you hide the binary in gitignore
 	return 0;
 }

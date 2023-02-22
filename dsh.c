@@ -17,66 +17,104 @@
 #include <string.h>
 #include <ctype.h> // isspace
 
-// TODO: Your function definitions (declarations in dsh.h)
 
+/***
+ * Mode 1 (full path given): Say the user types in the full path to an executable. 
+ * You know they typed a full path if their input starts begins with a '/' character! 
+ * First, check to see if the given path even exists. 
+*/
 void fullPathGiven(int argc, char **argv, char *path)
 {
-    // File exists and is executable! Can run!
+    char **cmdArr = argv;
+    // printf("path: %s\n",path);
+
     if (access(path, F_OK | X_OK) == 0)
     {
-        char lastChar; // sample last valid char
-        if (strcmp(lastChar, "&") == 0)
+        char lastChar;
+        char* lastTok = cmdArr[argc-1];
+        // printf("last tok: .%s.\n",lastTok);
+
+        // sample last valid char
+        if (argc > 1 && (strcmp(lastTok, "&") == 0))
         {
-            // 2) Run in background: If the last character in a valid command is an & symbol, the command is to be
-            // run in the background. This means that you’ll see dsh> being re-displayed immediately by the parent
-            // (dsh) process. If the child process prints to the screen, it’ll interleave its outputs into the terminal.
-        } else
+            if(0 == fork()){
+                argv[argc-1] = NULL; // delete & from argv tokens
+                execv(path,argv);
+            }
+        }
+        else
         {
-            // 1) Run in foreground: Execute the path using fork() and execv() as you learned in class.
-            // The call to execv() requires the full path to the executable, which the user already gave you.
+            pid_t childID;
+            childID = fork();
+            if(childID == 0){
+                execv(path,argv);
+            }else
+            {
+                wait(NULL);
+            }
         }
     }
     else
     {
         // https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
-        printf("\033[31mError: %s not found!\033[0m\n", path); // i love lucas
+        printf("\033[31mError: Path %s not found!\033[0m\n", path); // i love lucas
     }
 }
 
-void fullPathConstruction()
+/**
+ * Mode 2 (full path construction): This case triggers when the input does not start with a /. 
+ * We need find the true location of the given command.
+*/
+void fullPathConstruction(int argc, char **argv, char *path)
 {
-    // Mode 2 (full path construction): This case triggers when the input does not start with a /.
-    // Now we’ve got some work to do before we can even fork and exec! We need find the true location
-    // of the given command, and we’ll use the following steps:
+    // char cwd[MAXBUF];
+    char* cwd = malloc(MAXBUF *sizeof(int));
+    getcwd(cwd, sizeof(cwd));
 
-    // 1) First, we’ll check to see if the executable file can be found in the current working directory.
-    // That is, the location of where your shell thinks you’re in. Look into using getcwd(), defined in unistd.h.
-    // Concatenate the user’s input to the value of the current working directory, and see if it exists.
-    // If not, then move on to the next step.
+    // char tokPath[MAXBUF];
+    char* tokPath = malloc(MAXBUF *sizeof(int));
 
-    // For instance, if I typed ls2 and my current working directory is /home/dchiu, then the first place my
-    // program would be /home/dchiu/ls2. Of course, this file may or may not exist… read on!
+    tokPath = strcat(cwd,argv[0]); 
+    printf("post-cat path: %s\n",cwd);
 
-    // 2) If the executable is found in the current working directory, then execute it and we’re done! If it
-    // cannot be found in the current working directory, then there are other paths where it can be found.
-    // These paths are stored in the environment variable PATH.
+    if (access(tokPath, F_OK | X_OK) == 0) {
+        execv(tokPath,argv);
+    }
+    else {
+        //Then there are other paths where the command may be found
+        char* envPATH = getenv("PATH");
+        char* delim = ":";
 
-    // For example, a PATH might hold this value:
-    // /opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/usr/texbin
-    // Basically, what you’re seeing here is a :-delimited string that separates all the different locations to
-    // look for an executable file. Therefore, you need to split this string by :s, and concatenate the user’s
-    // input to the end of each token.
+        int* numTok = malloc(sizeof(int));
+        char** pathArr = split(envPATH, delim, numTok); 
 
-    // Again, if I typed ls2, then the first location to try is /opt/local/bin/ls2, the second place to try is
-    // /opt/local/sbin/ls2, and so on. As soon as you detect that a full path to the executable exists, then try
-    // to run it and be done!
+        for(int i = 1; i < *numTok; i++){
+            tokPath = strcat(cwd,argv[i]); 
+            printf("post-cat path: %s\n",cwd);
 
-    // Once you’ve tried all the paths in the environment variable, then you can output a Command not found
-    // error message
+            if (access(tokPath, F_OK | X_OK) == 0) {
+                execv(tokPath,argv);
+            }
+            if(i == *numTok -1){
+                // only after you’ve tried all the paths in the environment variable
+                printf("\033[31mError: Command %s not found!\033[0m\n", argv[0]); // lucas is so cool
+            }
+        }
 
-    // Returns to main and reprompts for the next command
+        // freeing stuff
+		for (int i = 0; i < *numTok; i++){free(pathArr[i]);pathArr[i]=NULL;}
+        free(cwd);
+        free(tokPath);
+		free(numTok);
+		free(pathArr);
+        cwd = NULL;
+        tokPath = NULL;
+		numTok = NULL;
+		pathArr = NULL;
+    }
 }
 
+/** Methods splits string into separate tokens delimited by whitespace and */
 char **split(char *str, char *delim, int *numTok)
 {
     char *token;
@@ -98,7 +136,6 @@ char **split(char *str, char *delim, int *numTok)
     }
     // offset due to counting delim
     numToken++;
-    printf("numTok: %d\n", numToken); // !!!
 
     // malloc -- numToken offset to add NULL
     char **cmdArr = malloc((numToken + 1) * sizeof(char *));
