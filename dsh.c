@@ -30,7 +30,6 @@ void fullPathGiven(int argc, char **argv, char *path)
 
     if (access(path, F_OK | X_OK) == 0)
     {
-        char lastChar;
         char* lastTok = cmdArr[argc-1];
         // printf("last tok: .%s.\n",lastTok);
 
