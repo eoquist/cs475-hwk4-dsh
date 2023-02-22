@@ -16,13 +16,13 @@
 int main(int argc, char **argv)
 {
 	char *cmdline = (char *)malloc(MAXBUF * sizeof(char)); // stores user input from commmand line
-	// char tmp[MAXBUF];
 	char *delim = " ";
 
 	// As soon as dsh starts, repeatedly provide the user with prompt : 'dsh> '
 	printf("dsh> ");
 	while (fgets(cmdline, MAXBUF, stdin) != NULL)
 	{
+		printf("this is your input: %s\n", cmdline);
 		// cmdline[strcspn(cmdline, "\n")] = '\0'; // honestly not sure if this does anything
 
 		// sexy "built-in commands"
@@ -45,14 +45,14 @@ int main(int argc, char **argv)
 		int i = 0;
 		while (cmdArr[i] != NULL)
 		{
-			printf("%s\n", cmdArr[i]);
+			printf("token #%d: %s\n", i, cmdArr[i]);
 			// check "/" and "cd" and redo "pwd" and "exit"
 			i++;
 		}
 
 		printf("dsh> ");
 
-		free(cmdline);
+		// free(cmdline);
 	}
 	free(cmdline);
 	return 0;

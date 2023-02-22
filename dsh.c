@@ -77,21 +77,39 @@ char **split(char *str, char *delim)
 {
     char *token;
     int numToken = 0;
-    for (int i = 0; i < strlen(str); i++)
+    char* start = str;
+    char *end;
+
+    // trim leading and trailing
+    while (isspace((unsigned char)*str)){str++;} 
+    end = str + strlen(str) - 1;
+    while (end > str && isspace((unsigned char)*end)){end--;}
+    *(end + 1) = '\0';
+
+    // counting is for cool people
+    while (*start != NULL)
     {
-        if (strcmp(str, delim) == 0)
+        if (*start == *delim)
         {
             numToken++;
         }
+        start++;
     }
+    // offset due to counting delim and include a token for NULL
+    numToken += 2;
+    printf("numTok: %d\n", numToken);
 
-    char **cmdArr = malloc((numToken + 1) * sizeof(char *));
+    char **cmdArr = malloc((numToken) * sizeof(char *));
+
+    printf("god I hope shit didnt break during malloc #1\n");
 
     // malloc
     for (int i = 0; i < numToken; i++)
     {
         cmdArr[i] = (char *)malloc(numToken * sizeof(char));
     }
+
+    printf("god I hope shit didnt break during malloc #2\n");
 
     // modifies cmdline
     int i = 0;
@@ -103,6 +121,6 @@ char **split(char *str, char *delim)
         numToken++;
         i++;
     }
-    strcpy(cmdArr[i], NULL);
+    strcpy(cmdArr[i], NULL); //
     return cmdArr;
 }
