@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <string.h>
-#include <ctype.h> // isspace
 #include "dsh.h"
 
 int main(int argc, char **argv)
@@ -22,24 +21,19 @@ int main(int argc, char **argv)
 	printf("dsh> ");
 	while (fgets(cmdline, MAXBUF, stdin) != NULL)
 	{
-		printf("this is your input: %s\n", cmdline);
-		// cmdline[strcspn(cmdline, "\n")] = '\0'; // honestly not sure if this does anything
+		cmdline[strcspn(cmdline, "\n")] = '\0'; // handles stdin \n
+		printf("this is your input: .%s.\n", cmdline);
 
-		// sexy "built-in commands"
+		// sexy "built-in commands" that may get moved elsewhere
 		if (strcmp(cmdline, "exit") == 0)
 		{
 			free(cmdline);
 			exit(0); // 1 = failure
 		}
-		else if (strcmp(cmdline, "pwd") == 0)
-		{
-			// make sure its printing the right working dir AFTER running other methods
-			printf("%s\n", getcwd(cmdline, sizeof(cmdline)));
-			continue;
-			// this looks weird af in valgrind compared to dshSol
-		}
 
-		char **cmdArr = split(cmdline, delim);
+		int* numTok = (int*)malloc(sizeof(int));
+		char **cmdArr = split(cmdline, delim,numTok); // byte lost here when exiting after cmdarr stuff malloc'd
+		
 
 		// print out all the tokens
 		int i = 0;
@@ -52,7 +46,12 @@ int main(int argc, char **argv)
 
 		printf("dsh> ");
 
-		// free(cmdline);
+		// free
+		for (i = 0; i < *numTok; i++)
+		{
+			free(cmdArr[i]);
+		}
+		free(cmdArr);
 	}
 	free(cmdline);
 	return 0;

@@ -12,4 +12,4 @@
 
 void fullPathGiven(char *path, char **argv);
 
-char **split(char *str, char *delim);
+char **split(char *str, char *delim, int* numTok);

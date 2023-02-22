@@ -15,6 +15,7 @@
 #include <err.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <ctype.h> // isspace
 
 // TODO: Your function definitions (declarations in dsh.h)
 
@@ -73,9 +74,11 @@ void fullPathConstruction()
     // Returns to main and reprompts for the next command
 }
 
-char **split(char *str, char *delim)
+char **split(char *str, char *delim, int* numTok)
 {
     char *token;
+    numTok = 0;
+    printf("token");
     int numToken = 0;
     char* start = str;
     char *end;
@@ -87,7 +90,7 @@ char **split(char *str, char *delim)
     *(end + 1) = '\0';
 
     // counting is for cool people
-    while (*start != NULL)
+    while (*start)
     {
         if (*start == *delim)
         {
@@ -99,28 +102,28 @@ char **split(char *str, char *delim)
     numToken += 2;
     printf("numTok: %d\n", numToken);
 
-    char **cmdArr = malloc((numToken) * sizeof(char *));
-
-    printf("god I hope shit didnt break during malloc #1\n");
-
     // malloc
+    char **cmdArr = malloc((numToken) * sizeof(char *));
     for (int i = 0; i < numToken; i++)
     {
         cmdArr[i] = (char *)malloc(numToken * sizeof(char));
     }
 
-    printf("god I hope shit didnt break during malloc #2\n");
+    // !!!!! how to handle if there's only one token
 
     // modifies cmdline
     int i = 0;
-    token = strtok(str, delim); // strtok vs strtok_r
+    token = strtok(str, delim); // strtok vs strtok_r ???
     while (token != NULL)
     {
-        token = strtok(NULL, delim); // NULL -> continue tokenizing
+        // printf("ptr .%s.\ttoken .%s.", cmdArr[i],token);
         strcpy(cmdArr[i], token);
+        // printf("token .%s.\n", token);
+
+        token = strtok(NULL, delim); // NULL -> continue tokenizing
         numToken++;
         i++;
     }
-    strcpy(cmdArr[i], NULL); //
+    cmdArr[i] = NULL; 
     return cmdArr;
 }
