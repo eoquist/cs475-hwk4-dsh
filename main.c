@@ -47,9 +47,6 @@ int main(int argc, char **argv)
 		if (cmdline[0] == '/')
 		{
 			fullPathGiven(*numTok, cmdArr, cmdline);
-			printf("testing completion of fpg\n");
-			printf("dsh> ");
-			continue;
 		}
 		else if (strcmp(cmdline, "cd") == 0)
 		{
@@ -62,8 +59,6 @@ int main(int argc, char **argv)
 			{
 				chdir(path); // errors if path not found?
 			}
-			printf("dsh> ");
-			continue;
 		}
 		else if (strcmp(cmdline, "pwd") == 0)
 		{
@@ -90,7 +85,7 @@ int main(int argc, char **argv)
 	}
 	free(cmdline);
 	cmdline = NULL;
-	printf("funni\n");
+	// printf("funni\n");
 	// run badapple here
 	// add the binary main to this folder and make sure you hide the binary in gitignore
 	return 0;

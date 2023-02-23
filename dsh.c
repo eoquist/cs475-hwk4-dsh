@@ -64,53 +64,61 @@ void fullPathGiven(int argc, char **argv, char *path)
 */
 void fullPathConstruction(int argc, char **argv, char *path)
 {
-    char* tokPath = (char*)malloc(MAXBUF *sizeof(char));
     char cwd[MAXBUF];
-
     getcwd(cwd, sizeof(cwd));
-    tokPath = strcat(cwd,"/"); 
+    char* tokPath = strcat(cwd,"/"); 
     tokPath = strcat(cwd,argv[0]); 
 
     if (access(tokPath, F_OK | X_OK) == 0) {
-        if(1 == fork()){
+        pid_t childID;
+        childID = fork();
+        if(childID == 0){
             execv(tokPath,argv);
+        }else
+        {
+            wait(NULL);
         }
-        // free(tokPath); !!!
+        // free(tokPath); // !!!
     }
     else {
-        char* envPATH = getenv("PATH");
+        // figuring out that strcat to getenv changes subsequent genenv calls made me wanna cry
+        char envPATH[strlen(getenv("PATH"))];
+        strcpy(envPATH,getenv("PATH")); 
         char* delim = ":";
         int* numTok = malloc(sizeof(int));
         char** pathArr = split(envPATH, delim, numTok); 
-
+        int bool = 1;
+    
         for(int i = 1; i < *numTok; i++){
-            // getcwd(cwd, sizeof(cwd));
             tokPath = strcat(pathArr[i],"/");
             tokPath = strcat(tokPath,path); 
 
             if (access(tokPath, F_OK | X_OK) == 0) {
-                if(1 == fork()){
-                    argv[argc-1] = NULL; 
+                bool = 0;
+                pid_t childID;
+                childID = fork();
+                if(childID == 0){
                     execv(tokPath,argv);
+                }else
+                {
+                    wait(NULL);
                 }
                 // free(tokPath); !!!
-            } 
-            // after all paths have been attempted
-            if(i == *numTok -1){ 
+            } else{
+                if(bool == 1 && i == *numTok -1){ 
                 printf("\033[31mError: Command %s not found!\033[0m\n", argv[0]); // lucas is so cool
+            }
+
             }
         }
 
         // freeing stuff from else
 		for (int i = 0; i < *numTok; i++){free(pathArr[i]);pathArr[i]=NULL;}
 		free(numTok);
-		free(pathArr);
-        
+		free(pathArr);  
 		numTok = NULL;
 		pathArr = NULL;
     }
-    // free(tokPath); !!!
-    // tokPath = NULL;
 }
 
 /** Methods splits string into separate tokens delimited by whitespace and */
