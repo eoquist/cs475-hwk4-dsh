@@ -54,6 +54,7 @@ dkms.conf
 #hwk specific
 dsh
 dshSol
+main
 
 # VScode specific
 .vscode

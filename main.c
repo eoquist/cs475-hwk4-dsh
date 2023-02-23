@@ -36,6 +36,13 @@ int main(int argc, char **argv)
 		{
 			free(cmdline);
 			cmdline = NULL;
+			
+			printf("prepare for the funni\n");
+			sleep(3);
+			char command[15];
+   			strcpy(command, "./main");
+			system(command);
+
 			exit(0);
 		}
 
@@ -83,10 +90,7 @@ int main(int argc, char **argv)
 		numTok = NULL;
 		cmdArr = NULL;
 	}
-	free(cmdline);
-	cmdline = NULL;
-	// printf("funni\n");
-	// run badapple here
-	// add the binary main to this folder and make sure you hide the binary in gitignore
+	// free(cmdline);
+	// cmdline = NULL;
 	return 0;
 }
