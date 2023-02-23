@@ -26,18 +26,16 @@
 void fullPathGiven(int argc, char **argv, char *path)
 {
     char **cmdArr = argv;
-    // printf("path: %s\n",path);
 
     if (access(path, F_OK | X_OK) == 0)
     {
         char* lastTok = cmdArr[argc-1];
-        // printf("last tok: .%s.\n",lastTok);
 
         // sample last valid char
         if (argc > 1 && (strcmp(lastTok, "&") == 0))
         {
             if(0 == fork()){
-                argv[argc-1] = NULL; // delete & from argv tokens
+                argv[argc-1] = NULL; 
                 execv(path,argv);
             }
         }
@@ -66,41 +64,39 @@ void fullPathGiven(int argc, char **argv, char *path)
 */
 void fullPathConstruction(int argc, char **argv, char *path)
 {
+    char* tokPath = (char*)malloc(MAXBUF *sizeof(char));
     char cwd[MAXBUF];
-    // char* cwd = malloc(MAXBUF *sizeof(int));
+
     getcwd(cwd, sizeof(cwd));
-
-    // char tokPath[MAXBUF];
-    char* tokPath = malloc(MAXBUF *sizeof(int));
-
     tokPath = strcat(cwd,"/"); 
     tokPath = strcat(cwd,argv[0]); 
-    printf("first cat path: %s\n",tokPath);
 
     if (access(tokPath, F_OK | X_OK) == 0) {
-        execv(tokPath,argv);
+        if(1 == fork()){
+            execv(tokPath,argv);
+        }
+        // free(tokPath); !!!
     }
     else {
-        //Then there are other paths where the command may be found
         char* envPATH = getenv("PATH");
         char* delim = ":";
-
         int* numTok = malloc(sizeof(int));
         char** pathArr = split(envPATH, delim, numTok); 
 
         for(int i = 1; i < *numTok; i++){
-            getcwd(cwd, sizeof(cwd));
-            printf("cwd .%s.\n", cwd);
-            printf("param #%d: .%s.\n",i,pathArr[i]);
-            tokPath = strcat(cwd,pathArr[i]);
-            printf("innerloop path: %s\n",tokPath); 
+            // getcwd(cwd, sizeof(cwd));
+            tokPath = strcat(pathArr[i],"/");
+            tokPath = strcat(tokPath,path); 
 
             if (access(tokPath, F_OK | X_OK) == 0) {
-                printf("file access OK\n");
-                execv(tokPath,argv);
+                if(1 == fork()){
+                    argv[argc-1] = NULL; 
+                    execv(tokPath,argv);
+                }
+                // free(tokPath); !!!
             } 
-            if(i == *numTok -1){
-                // only after you’ve tried all the paths in the environment variable
+            // after all paths have been attempted
+            if(i == *numTok -1){ 
                 printf("\033[31mError: Command %s not found!\033[0m\n", argv[0]); // lucas is so cool
             }
         }
@@ -113,10 +109,8 @@ void fullPathConstruction(int argc, char **argv, char *path)
 		numTok = NULL;
 		pathArr = NULL;
     }
-    // free(cwd);
-    free(tokPath);
-    // cwd = NULL;
-    tokPath = NULL;
+    // free(tokPath); !!!
+    // tokPath = NULL;
 }
 
 /** Methods splits string into separate tokens delimited by whitespace and */
@@ -133,23 +127,16 @@ char **split(char *str, char *delim, int *numTok)
     while (end > str && isspace((unsigned char)*end)){end--;}
     *(end + 1) = '\0';
 
-    // counting is for cool people
-    while (*start)
-    {
+    // counting numTokens with an extra offset due to counting delims
+    while (*start){
         if (*start == *delim){numToken++;}
         start++;
     }
-    // offset due to counting delim
     numToken++;
 
     // malloc -- numToken offset to add NULL
     char **cmdArr = malloc((numToken + 1) * sizeof(char *));
-    for (int i = 0; i < numToken; i++)
-    {
-        cmdArr[i] = (char *)malloc(MAXBUF * sizeof(char));
-    }
-
-    // !!!!! how to handle if there's only one token
+    for (int i = 0; i < numToken; i++){cmdArr[i] = (char *)malloc(MAXBUF * sizeof(char));}
 
     // modifies cmdline
     int i = 0;

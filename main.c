@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 			continue;
 		}
 
-		// sexy "built-in command" 
+		// sexy "built-in command"
 		if (strcmp(cmdline, "exit") == 0)
 		{
 			free(cmdline);
@@ -39,47 +39,50 @@ int main(int argc, char **argv)
 			exit(0);
 		}
 
-
 		// Malloc
 		int *numTok = malloc(sizeof(int));
-		char **cmdArr = split(cmdline, delim, numTok); 
+		char **cmdArr = split(cmdline, delim, numTok);
 
-		// sexy "built-in command(s)" plural 
-		if(cmdline[0] == '/'){
-			fullPathGiven(*numTok,cmdArr,cmdline);
+		// sexy "built-in command(s)" plural
+		if (cmdline[0] == '/')
+		{
+			fullPathGiven(*numTok, cmdArr, cmdline);
+			printf("testing completion of fpg\n");
 			printf("dsh> ");
 			continue;
-		} 
+		}
 		else if (strcmp(cmdline, "cd") == 0)
 		{
-			char* path = cmdArr[1];
-			if(path == NULL){
+			char *path = cmdArr[1];
+			if (path == NULL)
+			{
 				chdir(getenv("HOME"));
-			} 
-			else{
-				chdir(path); // !!! errors if path not found?
+			}
+			else
+			{
+				chdir(path); // errors if path not found?
 			}
 			printf("dsh> ");
 			continue;
 		}
-		else if(strcmp(cmdline, "pwd") == 0)
-		{ 
+		else if (strcmp(cmdline, "pwd") == 0)
+		{
 			char tmp[MAXBUF];
 			printf("%s\n", getcwd(tmp, sizeof(tmp)));
-			printf("dsh> ");
-			continue;
 		}
 		else
 		{
 			fullPathConstruction(*numTok, cmdArr, cmdline);
-			printf("dsh> ");
-			continue;
 		}
 
 		printf("dsh> ");
 
 		// freeing stuff
-		for (int i = 0; i < *numTok; i++){free(cmdArr[i]);cmdArr[i]=NULL;}
+		for (int i = 0; i < *numTok; i++)
+		{
+			free(cmdArr[i]);
+			cmdArr[i] = NULL;
+		}
 		free(numTok);
 		free(cmdArr);
 		numTok = NULL;
